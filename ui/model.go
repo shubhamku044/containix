@@ -12,15 +12,19 @@ type model struct {
 }
 
 func NewModel() tea.Model {
+	containers, err := newContainerList()
+	if err != nil {
+		panic(err)
+	}
 	return model{
-		containers: newContainerList(),
+		containers: containers,
 		logs:       newLogView(),
 		focusLeft:  true,
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return m.containers.Init()
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -31,15 +35,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "tab":
 			m.focusLeft = !m.focusLeft
+			return m, nil
 		case "q":
 			return m, tea.Quit
 		}
+	}
 
-		if m.focusLeft {
-			m.containers, cmd = m.containers.Update(msg)
-		} else {
-			m.logs, cmd = m.logs.Update(msg)
-		}
+	if m.focusLeft {
+		var newModel tea.Model
+		newModel, cmd = m.containers.Update(msg)
+		m.containers = newModel.(containerListModel)
 	}
 
 	return m, cmd
@@ -48,6 +53,5 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	left := m.containers.View()
 	right := m.logs.View()
-
 	return lipgloss.JoinHorizontal(lipgloss.Top, left, right)
 }
