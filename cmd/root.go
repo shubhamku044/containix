@@ -1,33 +1,14 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/shubhamku044/containix/ui"
 )
 
 func Execute() {
-	if len(os.Args) < 2 {
-		printHelp()
-		return
+	p := tea.NewProgram(ui.NewModel())
+
+	if err := p.Start(); err != nil {
+		panic(err)
 	}
-
-	switch os.Args[1] {
-	case "hello":
-		fmt.Println("hello world")
-	default:
-		fmt.Printf("Unknown command: %s\n", os.Args[1])
-		printHelp()
-	}
-}
-
-func printHelp() {
-	fmt.Println(`Containix - Docker Management CLI
-Usage:
-  containix <command>
-
-Available Commands:
-  hello        Print 'hello world'
-
-Example:
-  containix hello`)
 }
