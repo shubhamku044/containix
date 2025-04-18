@@ -25,7 +25,7 @@ type errMsg struct {
 }
 
 func newContainerList() (containerListModel, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.48"))
 	if err != nil {
 		return containerListModel{}, err
 	}
