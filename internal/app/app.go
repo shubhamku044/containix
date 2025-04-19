@@ -5,12 +5,11 @@ import (
 	"github.com/shubhamku044/containix/internal/ui"
 )
 
-// Run initializes and starts the application
 func Run() {
 	p := tea.NewProgram(ui.NewMainModel())
 
-	if err := p.Start(); err != nil {
+	_, err := p.Run()
+	if err != nil {
 		panic(err)
 	}
 }
-
