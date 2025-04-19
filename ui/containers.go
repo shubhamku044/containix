@@ -286,7 +286,7 @@ func (m containerListModel) View() string {
 		Width(m.width).
 		Height(m.height).
 		Padding(1, 2).
-		Render(asciiTitle)
+		Render(asciiTitle + "\n\n" + listView + helpText)
 }
 
 type listItem struct {
