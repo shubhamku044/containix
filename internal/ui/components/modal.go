@@ -19,7 +19,7 @@ type ModalModel struct {
 func NewModal(content string, width, height int, parentModel tea.Model) ModalModel {
 	vp := viewport.New(width-4, height-6)
 	vp.SetContent(content)
-	
+
 	return ModalModel{
 		viewport:    vp,
 		content:     content,
@@ -70,3 +70,4 @@ func (m ModalModel) View() string {
 		content,
 	)
 }
+
