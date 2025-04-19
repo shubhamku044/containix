@@ -1,6 +1,8 @@
 module github.com/shubhamku044/containix
 
-go 1.19
+go 1.23.0
+
+toolchain go1.24.2
 
 require (
 	github.com/charmbracelet/bubbles v0.16.1

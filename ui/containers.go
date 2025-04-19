@@ -9,14 +9,16 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 )
 
-type showLogsMsg struct {
-	logs string
+// LogMessage is sent when container logs are fetched
+type LogMessage struct {
+	Logs string
 }
 
+// Modal for displaying container logs
 type logsModel struct {
 	viewport    viewport.Model
 	content     string
@@ -81,12 +83,14 @@ type containerListModel struct {
 type containersFetchedMsg struct {
 	items []list.Item
 }
+
 type errMsg struct {
 	err error
 }
 
 func newContainerList() (containerListModel, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.48"))
+	// Use a more compatible API version or detect version
+	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return containerListModel{}, err
 	}
@@ -120,7 +124,7 @@ func (m containerListModel) Init() tea.Cmd {
 
 func (m *containerListModel) fetchContainers() tea.Cmd {
 	return func() tea.Msg {
-		containers, err := m.dockerClient.ContainerList(context.Background(), container.ListOptions{All: true})
+		containers, err := m.dockerClient.ContainerList(context.Background(), types.ContainerListOptions{All: true})
 		if err != nil {
 			return errMsg{err}
 		}
@@ -141,6 +145,7 @@ func (m *containerListModel) fetchContainers() tea.Cmd {
 	}
 }
 
+// Update method for containerListModel
 func (m containerListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -188,17 +193,6 @@ func (m containerListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q":
 			return m, tea.Quit
 		}
-
-	case showLogsMsg:
-		logsModel := logsModel{
-			viewport:    viewport.New(m.width, m.height),
-			content:     msg.logs,
-			width:       m.width,
-			height:      m.height,
-			parentModel: m,
-		}
-		logsModel.viewport.SetContent(msg.logs)
-		return logsModel, nil
 	}
 
 	var cmd tea.Cmd
@@ -208,7 +202,7 @@ func (m containerListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *containerListModel) stopContainer(containerID string) tea.Cmd {
 	return func() tea.Msg {
-		err := m.dockerClient.ContainerStop(context.Background(), containerID, container.StopOptions{})
+		err := m.dockerClient.ContainerStop(context.Background(), containerID, nil)
 		if err != nil {
 			return errMsg{err}
 		}
@@ -218,7 +212,7 @@ func (m *containerListModel) stopContainer(containerID string) tea.Cmd {
 
 func (m *containerListModel) startContainer(containerID string) tea.Cmd {
 	return func() tea.Msg {
-		err := m.dockerClient.ContainerStart(context.Background(), containerID, container.StartOptions{})
+		err := m.dockerClient.ContainerStart(context.Background(), containerID, types.ContainerStartOptions{})
 		if err != nil {
 			return errMsg{err}
 		}
@@ -228,7 +222,7 @@ func (m *containerListModel) startContainer(containerID string) tea.Cmd {
 
 func (m *containerListModel) restartContainer(containerID string) tea.Cmd {
 	return func() tea.Msg {
-		err := m.dockerClient.ContainerRestart(context.Background(), containerID, container.StopOptions{})
+		err := m.dockerClient.ContainerRestart(context.Background(), containerID, nil)
 		if err != nil {
 			return errMsg{err}
 		}
@@ -238,7 +232,7 @@ func (m *containerListModel) restartContainer(containerID string) tea.Cmd {
 
 func (m *containerListModel) fetchLogs(containerID string) tea.Cmd {
 	return func() tea.Msg {
-		reader, err := m.dockerClient.ContainerLogs(context.Background(), containerID, container.LogsOptions{
+		reader, err := m.dockerClient.ContainerLogs(context.Background(), containerID, types.ContainerLogsOptions{
 			ShowStdout: true,
 			ShowStderr: true,
 		})
@@ -251,12 +245,8 @@ func (m *containerListModel) fetchLogs(containerID string) tea.Cmd {
 		if err != nil {
 			return errMsg{err}
 		}
-		return showLogsMsg{logs: string(logs)}
+		return LogMessage{Logs: string(logs)}
 	}
-}
-
-type logsMsg struct {
-	logs string
 }
 
 func (m containerListModel) View() string {
