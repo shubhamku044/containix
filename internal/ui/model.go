@@ -47,8 +47,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 }
         case views.LogsMsg:
                 // Update the log view with the fetched logs
-                logMsg := msg.(views.LogsMsg)
-                m.logView.SetContent(logMsg.Logs)
+                m.logView.SetContent(msg.Logs)
                 return m, nil
         }
 
