@@ -6,7 +6,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// ModalModel represents a modal dialog
 type ModalModel struct {
 	viewport    viewport.Model
 	content     string
@@ -15,7 +14,6 @@ type ModalModel struct {
 	parentModel tea.Model
 }
 
-// NewModal creates a new modal
 func NewModal(content string, width, height int, parentModel tea.Model) ModalModel {
 	vp := viewport.New(width-4, height-6)
 	vp.SetContent(content)
@@ -29,7 +27,6 @@ func NewModal(content string, width, height int, parentModel tea.Model) ModalMod
 	}
 }
 
-// Update updates the model
 func (m ModalModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -49,7 +46,6 @@ func (m ModalModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-// View renders the model
 func (m ModalModel) View() string {
 	modalWidth := m.width * 80 / 100
 	modalHeight := m.height * 70 / 100
@@ -70,4 +66,3 @@ func (m ModalModel) View() string {
 		content,
 	)
 }
-

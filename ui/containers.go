@@ -75,6 +75,7 @@ type containerListModel struct {
 	err          error
 	width        int
 	height       int
+	asciiTitle   string
 }
 
 type containersFetchedMsg struct {
@@ -94,9 +95,19 @@ func newContainerList() (containerListModel, error) {
 	l.Title = "Containers"
 	l.Styles.Title = lipgloss.NewStyle().MarginLeft(2)
 
+	asciiTitle := `
+ ██████╗ ██████╗ ███╗   ██╗████████╗ █████╗ ██╗███╗   ██╗██╗██╗  ██╗
+██╔════╝██╔═══██╗████╗  ██║╚══██╔══╝██╔══██╗██║████╗  ██║██║╚██╗██╔╝
+██║     ██║   ██║██╔██╗ ██║   ██║   ███████║██║██╔██╗ ██║██║ ╚███╔╝ 
+██║     ██║   ██║██║╚██╗██║   ██║   ██╔══██║██║██║╚██╗██║██║ ██╔██╗ 
+╚██████╗╚██████╔╝██║ ╚████║   ██║   ██║  ██║██║██║ ╚████║██║██╔╝ ██╗
+ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═╝
+`
+
 	return containerListModel{
 		list:         l,
 		dockerClient: cli,
+		asciiTitle:   asciiTitle,
 	}, nil
 }
 
@@ -257,6 +268,11 @@ func (m containerListModel) View() string {
 			Render("Error: " + m.err.Error() + "\nPress R to retry")
 	}
 
+	asciiTitle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("226")).
+		Italic(true).
+		Render(lipgloss.PlaceHorizontal(m.width, lipgloss.Center, m.asciiTitle))
+
 	listView := lipgloss.NewStyle().
 		Width(m.width - 4).
 		Height(m.height - 6).
@@ -270,7 +286,7 @@ func (m containerListModel) View() string {
 		Width(m.width).
 		Height(m.height).
 		Padding(1, 2).
-		Render(listView + helpText)
+		Render(asciiTitle)
 }
 
 type listItem struct {

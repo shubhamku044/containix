@@ -9,6 +9,7 @@ fi
 # Update dependencies
 go mod tidy
 
+rm -rf ./bin
 # Build the application
 go build -o ./bin/containix ./cmd/containix
 

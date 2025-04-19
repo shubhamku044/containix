@@ -10,3 +10,7 @@ run:
 	@echo " Running ${APP_NAME}..."
 	go run ./main.go
 
+build:
+	@echo "🛠️  Building ${APP_NAME}..."
+	./build.sh
+
