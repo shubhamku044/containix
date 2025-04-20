@@ -8,9 +8,9 @@ dev:
 
 run:
 	@echo " Running ${APP_NAME}..."
-	go run ./main.go
+	go run ./cmd/containix/main.go
 
 build:
 	@echo "🛠️  Building ${APP_NAME}..."
-	./build.sh
+	go build -o ./bin/${APP_NAME} ./cmd/containix
 

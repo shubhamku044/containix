@@ -1,22 +1,39 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"log"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/shubhamku044/containix/ui"
+	"github.com/jroimartin/gocui"
+	"github.com/shubhamku044/containix/internal/app"
+	"github.com/shubhamku044/containix/internal/docker"
 )
 
 func main() {
-	p := tea.NewProgram(
-		ui.NewModel(),
-		tea.WithAltScreen(),
-		tea.WithMouseCellMotion(),
-	)
+	g, err := gocui.NewGui(gocui.OutputNormal)
+	if err != nil {
+		log.Panicln(err)
+	}
+	defer g.Close()
 
-	if _, err := p.Run(); err != nil {
-		fmt.Printf("Error running program: %v\n", err)
-		os.Exit(1)
+	// Fetch real data
+	containers := docker.FetchContainers()
+	images := docker.FetchImages()
+
+	// Initialize the model with real data
+	model := &app.Model{
+		Containers: containers, // Use exported field
+		Images:     images,     // Use exported field
+	}
+
+	g.SetManagerFunc(func(g *gocui.Gui) error {
+		return model.Layout(g)
+	})
+
+	if err := app.Keybindings(g); err != nil {
+		log.Panicln(err)
+	}
+
+	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
+		log.Panicln(err)
 	}
 }
